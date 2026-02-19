@@ -180,13 +180,13 @@
 
         .decisions-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 16px;
             margin-bottom: 24px;
         }
 
         .decision-card {
-            background: rgba(15, 23, 42, 0.95);
+            background: rgba(30, 41, 59, 0.8);
             border: 2px solid;
             border-radius: 12px;
             padding: 20px;
@@ -196,16 +196,15 @@
 
         .decision-card:hover:not(.disabled) {
             transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
 
         .decision-card.selected {
             border-color: white;
-            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            background: linear-gradient(135deg, #22d3ee, #3b82f6);
         }
 
         .decision-card.disabled {
-            opacity: 0.4;
+            opacity: 0.5;
             cursor: not-allowed;
         }
 
@@ -217,68 +216,23 @@
         }
 
         .decision-cost {
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             font-weight: 900;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .decision-title {
             font-weight: 700;
             font-size: 1rem;
-            line-height: 1.4;
-            margin-bottom: 16px;
-            min-height: 42px;
+            line-height: 1.3;
+            margin-bottom: 12px;
         }
 
         .decision-metrics {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 8px;
-        }
-
-        .metric-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-        }
-
-        .metric-label {
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            min-width: 55px;
-            letter-spacing: 0.5px;
-        }
-
-        .metric-bar-container {
-            flex: 1;
-            height: 16px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .metric-bar {
-            height: 100%;
-            border-radius: 8px;
-            transition: width 0.3s ease;
-            position: relative;
-        }
-
-        .metric-bar.level-1 { background: linear-gradient(90deg, #ef4444, #dc2626); width: 20%; }
-        .metric-bar.level-2 { background: linear-gradient(90deg, #f97316, #ea580c); width: 40%; }
-        .metric-bar.level-3 { background: linear-gradient(90deg, #eab308, #ca8a04); width: 60%; }
-        .metric-bar.level-4 { background: linear-gradient(90deg, #84cc16, #65a30d); width: 80%; }
-        .metric-bar.level-5 { background: linear-gradient(90deg, #22c55e, #16a34a); width: 100%; }
-
-        .metric-value {
-            font-size: 0.65rem;
-            font-weight: 700;
-            min-width: 20px;
-            text-align: center;
+            font-size: 0.75rem;
+            color: #cbd5e1;
         }
 
         .category-section {
@@ -300,9 +254,18 @@
             border-radius: 50%;
         }
 
-        .cat-tech { border-color: #06b6d4; }
-        .cat-process { border-color: #f59e0b; }
-        .cat-patient { border-color: #10b981; }
+        .cat-tech { 
+            border-color: #22d3ee;
+            background: linear-gradient(135deg, #22d3ee, #3b82f6);
+        }
+        .cat-process { 
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, #f59e0b, #ea580c);
+        }
+        .cat-patient { 
+            border-color: #10b981;
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
 
         .alert {
             background: rgba(239, 68, 68, 0.2);
@@ -398,38 +361,6 @@
         .checkbox.checked {
             background: white;
             border-color: white;
-        }
-
-        /* Mejorar contraste en tarjetas seleccionadas */
-        .decision-card.selected .decision-title {
-            color: #ffffff;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-        }
-
-        .decision-card.selected .decision-cost {
-            color: #ffffff;
-        }
-
-        .decision-card.selected .metric-label,
-        .decision-card.selected .metric-value {
-            color: #ffffff;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-
-        .decision-card:not(.selected) .decision-title {
-            color: #f1f5f9;
-        }
-
-        .decision-card:not(.selected) .decision-cost {
-            color: #22d3ee;
-        }
-
-        .decision-card:not(.selected) .metric-label {
-            color: #cbd5e1;
-        }
-
-        .decision-card:not(.selected) .metric-value {
-            color: #e2e8f0;
         }
 
         @media (max-width: 768px) {
@@ -605,18 +536,24 @@
     </div>
 
     <script>
+        // DATOS DEL JUEGO - 5 MÉTRICAS - PRESUPUESTO 10,000
         const decisionsData = [
+            // TECNOLOGÍA AI - Alto impacto en Accuracy y Eficiencia, Go-to-Market bajo
             { id: 1, decision: "AI de triage predictivo", categoria: "Tecnología AI", costo: 3500, nps: 4, evitarBurnout: 4, eficiencia: 5, accuracy: 5, goToMkt: 2 },
             { id: 2, decision: "Copiloto de documentación clínica", categoria: "Tecnología AI", costo: 3000, nps: 3, evitarBurnout: 5, eficiencia: 4, accuracy: 4, goToMkt: 2 },
             { id: 3, decision: "Predicción de altas y disponibilidad de camas", categoria: "Tecnología AI", costo: 2500, nps: 3, evitarBurnout: 3, eficiencia: 5, accuracy: 3, goToMkt: 3 },
             { id: 4, decision: "Búsqueda clínica semántica en HCE", categoria: "Tecnología AI", costo: 2000, nps: 2, evitarBurnout: 3, eficiencia: 3, accuracy: 4, goToMkt: 2 },
             { id: 5, decision: "Alertas inteligentes de riesgo clínico", categoria: "Tecnología AI", costo: 2000, nps: 2, evitarBurnout: 3, eficiencia: 3, accuracy: 5, goToMkt: 3 },
             { id: 6, decision: "Análisis predictivo de demanda", categoria: "Tecnología AI", costo: 1500, nps: 2, evitarBurnout: 2, eficiencia: 4, accuracy: 2, goToMkt: 3 },
+            
+            // PROCESOS - Balanceado, Go-to-Market medio
             { id: 7, decision: "Fast-track por complejidad", categoria: "Procesos", costo: 1500, nps: 4, evitarBurnout: 3, eficiencia: 5, accuracy: 3, goToMkt: 4 },
             { id: 8, decision: "Rediseño de roles en la guardia", categoria: "Procesos", costo: 2000, nps: 3, evitarBurnout: 4, eficiencia: 4, accuracy: 3, goToMkt: 3 },
             { id: 9, decision: "Protocolos clínicos asistidos por AI", categoria: "Procesos", costo: 2200, nps: 2, evitarBurnout: 2, eficiencia: 4, accuracy: 5, goToMkt: 2 },
             { id: 10, decision: "Separación física o lógica de flujos", categoria: "Procesos", costo: 1800, nps: 3, evitarBurnout: 3, eficiencia: 4, accuracy: 3, goToMkt: 3 },
             { id: 11, decision: "Sala de control operativa centralizada", categoria: "Procesos", costo: 1800, nps: 2, evitarBurnout: 3, eficiencia: 5, accuracy: 3, goToMkt: 4 },
+            
+            // EXPERIENCIA PACIENTE - Alto NPS, Go-to-Market alto, bajo Accuracy
             { id: 12, decision: "Información proactiva en sala de espera", categoria: "Experiencia Paciente", costo: 800, nps: 5, evitarBurnout: 1, eficiencia: 2, accuracy: 1, goToMkt: 5 },
             { id: 13, decision: "Chatbot asistente para pacientes", categoria: "Experiencia Paciente", costo: 1500, nps: 4, evitarBurnout: 2, eficiencia: 3, accuracy: 2, goToMkt: 4 },
             { id: 14, decision: "Explicaciones automáticas post-atención", categoria: "Experiencia Paciente", costo: 1000, nps: 4, evitarBurnout: 1, eficiencia: 2, accuracy: 2, goToMkt: 5 },
@@ -626,14 +563,6 @@
         const BUDGET = 10000;
 
         const metricNames = {
-            nps: 'NPS',
-            evitarBurnout: 'Burnout',
-            eficiencia: 'Efic.',
-            accuracy: 'Accur.',
-            goToMkt: 'GTM'
-        };
-
-        const metricNamesLong = {
             nps: 'NPS (Satisfacción Paciente)',
             evitarBurnout: 'Evitar Burnout (Satisfacción Staff)',
             eficiencia: 'Eficiencia (Ahorro & Recursos)',
@@ -642,9 +571,9 @@
         };
 
         const categoryColors = {
-            'Tecnología AI': { border: '#06b6d4', dot: '#06b6d4' },
-            'Procesos': { border: '#f59e0b', dot: '#f59e0b' },
-            'Experiencia Paciente': { border: '#10b981', dot: '#10b981' }
+            'Tecnología AI': { gradient: 'cat-tech', border: '#22d3ee', dot: '#22d3ee' },
+            'Procesos': { gradient: 'cat-process', border: '#f59e0b', dot: '#f59e0b' },
+            'Experiencia Paciente': { gradient: 'cat-patient', border: '#10b981', dot: '#10b981' }
         };
 
         let currentPlayer = '';
@@ -749,18 +678,6 @@
             return num.toLocaleString('es-AR');
         }
 
-        function createMetricBar(metricName, value) {
-            return `
-                <div class="metric-row">
-                    <span class="metric-label">${metricNames[metricName]}</span>
-                    <div class="metric-bar-container">
-                        <div class="metric-bar level-${value}"></div>
-                    </div>
-                    <span class="metric-value">${value}</span>
-                </div>
-            `;
-        }
-
         function renderDecisions() {
             const categories = {};
             decisionsData.forEach(d => {
@@ -786,25 +703,25 @@
                             
                             return `
                                 <div 
-                                    class="decision-card ${isSelected ? 'selected' : ''} ${!canAfford ? 'disabled' : ''}" 
+                                    class="decision-card ${isSelected ? 'selected' : ''} ${!canAfford ? 'disabled' : ''} ${categoryColors[cat].gradient}" 
                                     style="border-color: ${isSelected ? 'white' : categoryColors[cat].border};"
                                     onclick="${canAfford ? `toggleDecision(${d.id})` : ''}"
                                 >
                                     <div class="decision-header">
                                         <div class="checkbox ${isSelected ? 'checked' : ''}"></div>
-                                        <div class="decision-cost">
+                                        <div class="decision-cost" style="color: ${isSelected ? 'white' : '#22d3ee'};">
                                             ${formatNumber(d.costo)}
                                         </div>
                                     </div>
-                                    <div class="decision-title">
+                                    <div class="decision-title" style="color: ${isSelected ? 'white' : '#e2e8f0'};">
                                         ${d.decision}
                                     </div>
-                                    <div class="decision-metrics">
-                                        ${createMetricBar('nps', d.nps)}
-                                        ${createMetricBar('evitarBurnout', d.evitarBurnout)}
-                                        ${createMetricBar('eficiencia', d.eficiencia)}
-                                        ${createMetricBar('accuracy', d.accuracy)}
-                                        ${createMetricBar('goToMkt', d.goToMkt)}
+                                    <div class="decision-metrics" style="color: ${isSelected ? 'rgba(255,255,255,0.9)' : '#cbd5e1'};">
+                                        <div>NPS: ${d.nps}/5</div>
+                                        <div>Burnout: ${d.evitarBurnout}/5</div>
+                                        <div>Eficiencia: ${d.eficiencia}/5</div>
+                                        <div>Accuracy: ${d.accuracy}/5</div>
+                                        <div>GTM: ${d.goToMkt}/5</div>
                                     </div>
                                 </div>
                             `;
@@ -909,7 +826,7 @@
         function renderCharts(averages) {
             const metrics = Object.keys(averages);
             const values = Object.values(averages);
-            const labels = metrics.map(m => metricNamesLong[m]);
+            const labels = metrics.map(m => metricNames[m]);
             
             const barCtx = document.getElementById('barChart').getContext('2d');
             if (barChartInstance) barChartInstance.destroy();
