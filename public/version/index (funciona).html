@@ -653,65 +653,32 @@
         let barChartInstance = null;
         let radarChartInstance = null;
 
-
-// Reemplazar la función savePlayer
-async function savePlayer(playerData) {
-    try {
-        const response = await fetch('/api/players', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(playerData)
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        function savePlayer(playerData) {
+            localStorage.setItem(`player_${playerData.name}`, JSON.stringify(playerData));
         }
-        
-        return await response.json();
-    } catch (error) {
-        console.error('Error saving player:', error);
-        alert('Error al guardar resultados. Verifica tu conexión.');
-        throw error;
-    }
-}
 
-
-
-// Reemplazar la función loadPlayers
-async function loadPlayers() {
-    try {
-        const response = await fetch('/api/players');
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        function loadPlayers() {
+            const players = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('player_')) {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    players.push(data);
+                }
+            }
+            return players.sort((a, b) => b.overallScore - a.overallScore);
         }
-        
-        const players = await response.json();
-        return players; // Ya viene ordenado desde la API
-    } catch (error) {
-        console.error('Error loading players:', error);
-        return [];
-    }
-}
 
-// Reemplazar la función deleteAllPlayers
-async function deleteAllPlayers() {
-    try {
-        const response = await fetch('/api/players', { 
-            method: 'DELETE'
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        function deleteAllPlayers() {
+            const keys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('player_')) {
+                    keys.push(key);
+                }
+            }
+            keys.forEach(key => localStorage.removeItem(key));
         }
-        
-        return await response.json();
-    } catch (error) {
-        console.error('Error deleting players:', error);
-        alert('Error al resetear. Verifica tu conexión.');
-        throw error;
-    }
-}
 
         function showScreen(screenId) {
             document.querySelectorAll('.welcome-screen, .game-screen, .results-screen').forEach(el => {
@@ -888,45 +855,40 @@ async function deleteAllPlayers() {
             return result;
         }
 
-// Modificar submitResults para que sea async
-async function submitResults() {
-    if (selectedDecisions.length === 0) {
-        alert('Debes seleccionar al menos una decisión');
-        return;
-    }
-    
-    const totalCost = selectedDecisions.reduce((sum, id) => {
-        const d = decisionsData.find(dd => dd.id === id);
-        return sum + d.costo;
-    }, 0);
-    
-    if (totalCost > BUDGET) {
-        alert('Has excedido el presupuesto. Reduce tus decisiones.');
-        return;
-    }
-    
-    const averages = calculateAverages(selectedDecisions);
-    const overallScore = parseFloat(
-        (Object.values(averages).reduce((a, b) => a + b, 0) / Object.values(averages).length).toFixed(2)
-    );
-    
-    const playerData = {
-        name: currentPlayer,
-        decisions: selectedDecisions,
-        cost: totalCost,
-        averages: averages,
-        overallScore: overallScore,
-        timestamp: new Date().toISOString()
-    };
-    
-    // Guardar en la API
-    await savePlayer(playerData);
-    
-    // Recargar jugadores desde la API
-    allPlayers = await loadPlayers();
-    
-    showResults(playerData);
-}
+        function submitResults() {
+            if (selectedDecisions.length === 0) {
+                alert('Debes seleccionar al menos una decisión');
+                return;
+            }
+            
+            const totalCost = selectedDecisions.reduce((sum, id) => {
+                const d = decisionsData.find(dd => dd.id === id);
+                return sum + d.costo;
+            }, 0);
+            
+            if (totalCost > BUDGET) {
+                alert('Has excedido el presupuesto. Reduce tus decisiones.');
+                return;
+            }
+            
+            const averages = calculateAverages(selectedDecisions);
+            const overallScore = parseFloat(
+                (Object.values(averages).reduce((a, b) => a + b, 0) / Object.values(averages).length).toFixed(2)
+            );
+            
+            const playerData = {
+                name: currentPlayer,
+                decisions: selectedDecisions,
+                cost: totalCost,
+                averages: averages,
+                overallScore: overallScore,
+                timestamp: new Date().toISOString()
+            };
+            
+            savePlayer(playerData);
+            showResults(playerData);
+        }
+
         function showResults(playerData) {
             allPlayers = loadPlayers();
             const myRank = allPlayers.findIndex(p => p.name === currentPlayer) + 1;
@@ -1052,16 +1014,14 @@ async function submitResults() {
             updateCosts();
         }
 
-// Modificar updateRanking para que sea async
-async function updateRanking() {
-    allPlayers = await loadPlayers();
-    const playerData = allPlayers.find(p => p.name === currentPlayer);
-    if (playerData) {
-        showResults(playerData);
-        alert('¡Ranking actualizado!');
-    }
-}
-
+        function updateRanking() {
+            allPlayers = loadPlayers();
+            const playerData = allPlayers.find(p => p.name === currentPlayer);
+            if (playerData) {
+                showResults(playerData);
+                alert('¡Ranking actualizado!');
+            }
+        }
 
         function resetGame() {
             if (confirm('¿Quieres reiniciar tus selecciones?')) {
@@ -1071,20 +1031,19 @@ async function updateRanking() {
             }
         }
 
-// Modificar resetAllGame para que sea async
-async function resetAllGame() {
-    if (confirm('¿Seguro que quieres reiniciar TODOS los resultados del juego?')) {
-        await deleteAllPlayers();
-        allPlayers = [];
-        currentPlayer = '';
-        selectedDecisions = [];
-        document.getElementById('playerName').value = '';
-        await updatePlayerCount();
-        document.getElementById('welcomeLeaderboard').style.display = 'none';
-        document.getElementById('leaderboardToggle').textContent = 'Ver';
-        showScreen('welcomeScreen');
-    }
-}
+        function resetAllGame() {
+            if (confirm('¿Seguro que quieres reiniciar TODOS los resultados del juego?')) {
+                deleteAllPlayers();
+                allPlayers = [];
+                currentPlayer = '';
+                selectedDecisions = [];
+                document.getElementById('playerName').value = '';
+                updatePlayerCount();
+                document.getElementById('welcomeLeaderboard').style.display = 'none';
+                document.getElementById('leaderboardToggle').textContent = 'Ver';
+                showScreen('welcomeScreen');
+            }
+        }
 
         function exportToExcel() {
             const playerData = allPlayers.find(p => p.name === currentPlayer);
@@ -1161,16 +1120,8 @@ async function resetAllGame() {
             }
         }
 
-// Modificar updatePlayerCount para que sea async
-// Modificar la inicialización al final
-(async function() {
-    await updatePlayerCount();
-    
-    document.getElementById('playerName').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') startGame();
-    });
-})();
-
+        updatePlayerCount();
+        
         document.getElementById('playerName').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') startGame();
         });
