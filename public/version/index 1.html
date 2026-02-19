@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SimGame: The Pitt - Workshop</title>
+    <title>SimGame: The Pitt - Multiplayer</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -164,23 +163,13 @@
             background: #334155;
         }
 
-        .btn-success {
-            background: linear-gradient(90deg, #10b981, #059669);
-            color: white;
-        }
-
-        .btn-success:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
-        }
-
         .btn-full {
             width: 100%;
         }
 
         .decisions-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 16px;
             margin-bottom: 24px;
         }
@@ -343,6 +332,12 @@
             margin-bottom: 24px;
         }
 
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
         .btn-group {
             display: flex;
             gap: 16px;
@@ -388,7 +383,7 @@
         <div id="welcomeScreen" class="welcome-screen active">
             <div class="header">
                 <h1 class="main-title title-font">SIMGAME: THE PITT</h1>
-                <p style="font-size: 1.5rem; color: #cbd5e1; margin-bottom: 8px;">Workshop Interactivo</p>
+                <p style="font-size: 1.5rem; color: #cbd5e1; margin-bottom: 8px;">Workshop Multijugador</p>
                 <p style="color: #94a3b8;">Optimización de recursos en crisis hospitalaria</p>
             </div>
 
@@ -396,7 +391,7 @@
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
                     <div style="font-size: 2rem;">👥</div>
                     <div>
-                        <p style="font-size: 1.125rem; font-weight: 700; color: #cbd5e1;">Jugadores registrados</p>
+                        <p style="font-size: 1.125rem; font-weight: 700; color: #cbd5e1;">Jugadores conectados</p>
                         <p style="font-size: 3rem; font-weight: 900;" id="playerCount">0</p>
                     </div>
                 </div>
@@ -442,16 +437,16 @@
             <div class="card card-cyan">
                 <div class="stats-grid">
                     <div class="stat-card" style="border-color: #64748b;">
-                        <p class="stat-label">Créditos Totales</p>
-                        <p class="stat-value">10,000</p>
+                        <p class="stat-label">Presupuesto</p>
+                        <p class="stat-value">50</p>
                     </div>
                     <div class="stat-card" style="border-color: #22d3ee;">
                         <p class="stat-label">Gastado</p>
                         <p class="stat-value" id="costUsed">0</p>
                     </div>
                     <div class="stat-card" style="border-color: #10b981;">
-                        <p class="stat-label">Disponible</p>
-                        <p class="stat-value" id="costRemaining">10,000</p>
+                        <p class="stat-label">Restante</p>
+                        <p class="stat-value" id="costRemaining">50</p>
                     </div>
                     <div class="stat-card" style="border-color: #a855f7;">
                         <p class="stat-label">Jugadores</p>
@@ -490,8 +485,8 @@
                     <p class="stat-value" id="myScore">0</p>
                 </div>
                 <div class="stat-card" style="border-color: #22d3ee;">
-                    <p class="stat-label">Créditos</p>
-                    <p class="stat-value" id="resultsCost">0/10k</p>
+                    <p class="stat-label">Presupuesto</p>
+                    <p class="stat-value" id="resultsCost">0/50</p>
                 </div>
                 <div class="stat-card" style="border-color: #a855f7;">
                     <p class="stat-label">Decisiones</p>
@@ -525,9 +520,6 @@
                 <button class="btn btn-primary" onclick="playAgain()">
                     JUGAR DE NUEVO
                 </button>
-                <button class="btn btn-success" onclick="exportToExcel()">
-                    📥 EXPORTAR A EXCEL
-                </button>
                 <button class="btn btn-secondary" onclick="updateRanking()">
                     ACTUALIZAR RANKING
                 </button>
@@ -536,38 +528,33 @@
     </div>
 
     <script>
-        // DATOS DEL JUEGO - 5 MÉTRICAS - PRESUPUESTO 10,000
+        // Datos del juego
         const decisionsData = [
-            // TECNOLOGÍA AI - Alto impacto en Accuracy y Eficiencia, Go-to-Market bajo
-            { id: 1, decision: "AI de triage predictivo", categoria: "Tecnología AI", costo: 3500, nps: 4, evitarBurnout: 4, eficiencia: 5, accuracy: 5, goToMkt: 2 },
-            { id: 2, decision: "Copiloto de documentación clínica", categoria: "Tecnología AI", costo: 3000, nps: 3, evitarBurnout: 5, eficiencia: 4, accuracy: 4, goToMkt: 2 },
-            { id: 3, decision: "Predicción de altas y disponibilidad de camas", categoria: "Tecnología AI", costo: 2500, nps: 3, evitarBurnout: 3, eficiencia: 5, accuracy: 3, goToMkt: 3 },
-            { id: 4, decision: "Búsqueda clínica semántica en HCE", categoria: "Tecnología AI", costo: 2000, nps: 2, evitarBurnout: 3, eficiencia: 3, accuracy: 4, goToMkt: 2 },
-            { id: 5, decision: "Alertas inteligentes de riesgo clínico", categoria: "Tecnología AI", costo: 2000, nps: 2, evitarBurnout: 3, eficiencia: 3, accuracy: 5, goToMkt: 3 },
-            { id: 6, decision: "Análisis predictivo de demanda", categoria: "Tecnología AI", costo: 1500, nps: 2, evitarBurnout: 2, eficiencia: 4, accuracy: 2, goToMkt: 3 },
-            
-            // PROCESOS - Balanceado, Go-to-Market medio
-            { id: 7, decision: "Fast-track por complejidad", categoria: "Procesos", costo: 1500, nps: 4, evitarBurnout: 3, eficiencia: 5, accuracy: 3, goToMkt: 4 },
-            { id: 8, decision: "Rediseño de roles en la guardia", categoria: "Procesos", costo: 2000, nps: 3, evitarBurnout: 4, eficiencia: 4, accuracy: 3, goToMkt: 3 },
-            { id: 9, decision: "Protocolos clínicos asistidos por AI", categoria: "Procesos", costo: 2200, nps: 2, evitarBurnout: 2, eficiencia: 4, accuracy: 5, goToMkt: 2 },
-            { id: 10, decision: "Separación física o lógica de flujos", categoria: "Procesos", costo: 1800, nps: 3, evitarBurnout: 3, eficiencia: 4, accuracy: 3, goToMkt: 3 },
-            { id: 11, decision: "Sala de control operativa centralizada", categoria: "Procesos", costo: 1800, nps: 2, evitarBurnout: 3, eficiencia: 5, accuracy: 3, goToMkt: 4 },
-            
-            // EXPERIENCIA PACIENTE - Alto NPS, Go-to-Market alto, bajo Accuracy
-            { id: 12, decision: "Información proactiva en sala de espera", categoria: "Experiencia Paciente", costo: 800, nps: 5, evitarBurnout: 1, eficiencia: 2, accuracy: 1, goToMkt: 5 },
-            { id: 13, decision: "Chatbot asistente para pacientes", categoria: "Experiencia Paciente", costo: 1500, nps: 4, evitarBurnout: 2, eficiencia: 3, accuracy: 2, goToMkt: 4 },
-            { id: 14, decision: "Explicaciones automáticas post-atención", categoria: "Experiencia Paciente", costo: 1000, nps: 4, evitarBurnout: 1, eficiencia: 2, accuracy: 2, goToMkt: 5 },
-            { id: 15, decision: "Canal digital de seguimiento post-alta", categoria: "Experiencia Paciente", costo: 1200, nps: 4, evitarBurnout: 1, eficiencia: 3, accuracy: 3, goToMkt: 4 }
+            { id: 1, decision: "AI de triage predictivo", categoria: "Tecnología AI", costo: 30, goToMkt: 4, nps: 4, reduccionReclamos: 3, evitarBurnout: 4, eficienciaOperativa: 5, precisionMedica: 3, rotacionCamas: 4 },
+            { id: 2, decision: "Copiloto de documentación clínica", categoria: "Tecnología AI", costo: 25, goToMkt: 6, nps: 3, reduccionReclamos: 2, evitarBurnout: 5, eficienciaOperativa: 3, precisionMedica: 4, rotacionCamas: 2 },
+            { id: 3, decision: "Predicción de altas y disponibilidad de camas", categoria: "Tecnología AI", costo: 20, goToMkt: 4, nps: 3, reduccionReclamos: 2, evitarBurnout: 3, eficienciaOperativa: 4, precisionMedica: 3, rotacionCamas: 5 },
+            { id: 4, decision: "Búsqueda clínica semántica en HCE", categoria: "Tecnología AI", costo: 15, goToMkt: 6, nps: 2, reduccionReclamos: 1, evitarBurnout: 3, eficienciaOperativa: 3, precisionMedica: 4, rotacionCamas: 2 },
+            { id: 5, decision: "Alertas inteligentes de riesgo clínico", categoria: "Tecnología AI", costo: 15, goToMkt: 4, nps: 2, reduccionReclamos: 1, evitarBurnout: 3, eficienciaOperativa: 2, precisionMedica: 5, rotacionCamas: 2 },
+            { id: 6, decision: "Análisis predictivo de demanda", categoria: "Tecnología AI", costo: 10, goToMkt: 3, nps: 2, reduccionReclamos: 1, evitarBurnout: 2, eficienciaOperativa: 3, precisionMedica: 2, rotacionCamas: 3 },
+            { id: 7, decision: "Fast-track por complejidad", categoria: "Procesos", costo: 10, goToMkt: 3, nps: 4, reduccionReclamos: 4, evitarBurnout: 3, eficienciaOperativa: 5, precisionMedica: 3, rotacionCamas: 3 },
+            { id: 8, decision: "Rediseño de roles en la guardia", categoria: "Procesos", costo: 15, goToMkt: 3, nps: 3, reduccionReclamos: 2, evitarBurnout: 4, eficienciaOperativa: 4, precisionMedica: 3, rotacionCamas: 3 },
+            { id: 9, decision: "Protocolos clínicos asistidos por AI", categoria: "Procesos", costo: 15, goToMkt: 6, nps: 2, reduccionReclamos: 1, evitarBurnout: 2, eficienciaOperativa: 3, precisionMedica: 5, rotacionCamas: 2 },
+            { id: 10, decision: "Separación física o lógica de flujos", categoria: "Procesos", costo: 10, goToMkt: 6, nps: 3, reduccionReclamos: 3, evitarBurnout: 3, eficienciaOperativa: 4, precisionMedica: 3, rotacionCamas: 3 },
+            { id: 11, decision: "Sala de control operativa centralizada", categoria: "Procesos", costo: 10, goToMkt: 5, nps: 2, reduccionReclamos: 1, evitarBurnout: 3, eficienciaOperativa: 4, precisionMedica: 3, rotacionCamas: 3 },
+            { id: 12, decision: "Información proactiva en sala de espera", categoria: "Experiencia Paciente", costo: 10, goToMkt: 3, nps: 5, reduccionReclamos: 5, evitarBurnout: 1, eficienciaOperativa: 2, precisionMedica: 1, rotacionCamas: 1 },
+            { id: 13, decision: "Chatbot asistente para pacientes", categoria: "Experiencia Paciente", costo: 15, goToMkt: 3, nps: 4, reduccionReclamos: 4, evitarBurnout: 2, eficienciaOperativa: 3, precisionMedica: 2, rotacionCamas: 2 },
+            { id: 14, decision: "Explicaciones automáticas post-atención", categoria: "Experiencia Paciente", costo: 5, goToMkt: 2, nps: 4, reduccionReclamos: 3, evitarBurnout: 1, eficienciaOperativa: 1, precisionMedica: 2, rotacionCamas: 1 },
+            { id: 15, decision: "Canal digital de seguimiento post-alta", categoria: "Experiencia Paciente", costo: 10, goToMkt: 3, nps: 4, reduccionReclamos: 3, evitarBurnout: 1, eficienciaOperativa: 1, precisionMedica: 4, rotacionCamas: 2 }
         ];
 
-        const BUDGET = 10000;
-
         const metricNames = {
-            nps: 'NPS (Satisfacción Paciente)',
-            evitarBurnout: 'Evitar Burnout (Satisfacción Staff)',
-            eficiencia: 'Eficiencia (Ahorro & Recursos)',
-            accuracy: 'Accuracy (Precisión Médica)',
-            goToMkt: 'Go-to-Market (Velocidad)'
+            goToMkt: 'Time-to-Market',
+            nps: 'NPS',
+            reduccionReclamos: 'Reducción Reclamos',
+            evitarBurnout: 'Evitar Burnout',
+            eficienciaOperativa: 'Eficiencia Operativa',
+            precisionMedica: 'Precisión Médica',
+            rotacionCamas: 'Rotación Camas'
         };
 
         const categoryColors = {
@@ -576,12 +563,14 @@
             'Experiencia Paciente': { gradient: 'cat-patient', border: '#10b981', dot: '#10b981' }
         };
 
+        // Estado del juego
         let currentPlayer = '';
         let selectedDecisions = [];
         let allPlayers = [];
         let barChartInstance = null;
         let radarChartInstance = null;
 
+        // LocalStorage como backend simple
         function savePlayer(playerData) {
             localStorage.setItem(`player_${playerData.name}`, JSON.stringify(playerData));
         }
@@ -609,6 +598,7 @@
             keys.forEach(key => localStorage.removeItem(key));
         }
 
+        // Funciones de UI
         function showScreen(screenId) {
             document.querySelectorAll('.welcome-screen, .game-screen, .results-screen').forEach(el => {
                 el.classList.remove('active');
@@ -674,10 +664,6 @@
             updatePlayerCount();
         }
 
-        function formatNumber(num) {
-            return num.toLocaleString('es-AR');
-        }
-
         function renderDecisions() {
             const categories = {};
             decisionsData.forEach(d => {
@@ -699,7 +685,7 @@
                                 const dec = decisionsData.find(dd => dd.id === id);
                                 return sum + dec.costo;
                             }, 0);
-                            const canAfford = (totalCost + d.costo <= BUDGET) || isSelected;
+                            const canAfford = (totalCost + d.costo <= 50) || isSelected;
                             
                             return `
                                 <div 
@@ -710,7 +696,7 @@
                                     <div class="decision-header">
                                         <div class="checkbox ${isSelected ? 'checked' : ''}"></div>
                                         <div class="decision-cost" style="color: ${isSelected ? 'white' : '#22d3ee'};">
-                                            ${formatNumber(d.costo)}
+                                            $${d.costo}
                                         </div>
                                     </div>
                                     <div class="decision-title" style="color: ${isSelected ? 'white' : '#e2e8f0'};">
@@ -719,9 +705,8 @@
                                     <div class="decision-metrics" style="color: ${isSelected ? 'rgba(255,255,255,0.9)' : '#cbd5e1'};">
                                         <div>NPS: ${d.nps}/5</div>
                                         <div>Burnout: ${d.evitarBurnout}/5</div>
-                                        <div>Eficiencia: ${d.eficiencia}/5</div>
-                                        <div>Accuracy: ${d.accuracy}/5</div>
-                                        <div>GTM: ${d.goToMkt}/5</div>
+                                        <div>Eficiencia: ${d.eficienciaOperativa}/5</div>
+                                        <div>Precisión: ${d.precisionMedica}/5</div>
                                     </div>
                                 </div>
                             `;
@@ -748,20 +733,21 @@
                 return sum + d.costo;
             }, 0);
             
-            document.getElementById('costUsed').textContent = formatNumber(totalCost);
-            document.getElementById('costUsed').style.color = totalCost > BUDGET ? '#ef4444' : '#22d3ee';
+            document.getElementById('costUsed').textContent = totalCost;
+            document.getElementById('costUsed').style.color = totalCost > 50 ? '#ef4444' : '#22d3ee';
             
-            const remaining = BUDGET - totalCost;
-            document.getElementById('costRemaining').textContent = formatNumber(remaining);
+            const remaining = 50 - totalCost;
+            document.getElementById('costRemaining').textContent = remaining;
             document.getElementById('costRemaining').style.color = remaining < 0 ? '#ef4444' : '#10b981';
             
             const alert = document.getElementById('budgetAlert');
-            alert.style.display = totalCost > BUDGET ? 'flex' : 'none';
+            alert.style.display = totalCost > 50 ? 'flex' : 'none';
         }
 
         function calculateAverages(decisions) {
             const selected = decisions.map(id => decisionsData.find(d => d.id === id));
-            const metrics = ['nps', 'evitarBurnout', 'eficiencia', 'accuracy', 'goToMkt'];
+            const metrics = ['goToMkt', 'nps', 'reduccionReclamos', 'evitarBurnout', 
+                           'eficienciaOperativa', 'precisionMedica', 'rotacionCamas'];
             
             const result = {};
             metrics.forEach(metric => {
@@ -783,7 +769,7 @@
                 return sum + d.costo;
             }, 0);
             
-            if (totalCost > BUDGET) {
+            if (totalCost > 50) {
                 alert('Has excedido el presupuesto. Reduce tus decisiones.');
                 return;
             }
@@ -814,7 +800,7 @@
             document.getElementById('myPosition').textContent = `#${myRank}`;
             document.getElementById('totalPlayers').textContent = allPlayers.length;
             document.getElementById('myScore').textContent = playerData.overallScore;
-            document.getElementById('resultsCost').textContent = `${formatNumber(playerData.cost)}/10k`;
+            document.getElementById('resultsCost').textContent = `${playerData.cost}/50`;
             document.getElementById('resultsDecisions').textContent = playerData.decisions.length;
             document.getElementById('resultsPlayerCount').textContent = allPlayers.length;
             
@@ -828,6 +814,7 @@
             const values = Object.values(averages);
             const labels = metrics.map(m => metricNames[m]);
             
+            // Bar Chart
             const barCtx = document.getElementById('barChart').getContext('2d');
             if (barChartInstance) barChartInstance.destroy();
             barChartInstance = new Chart(barCtx, {
@@ -853,7 +840,7 @@
                             grid: { color: '#334155' }
                         },
                         x: {
-                            ticks: { color: '#94a3b8', font: { size: 10 } },
+                            ticks: { color: '#94a3b8' },
                             grid: { color: '#334155' }
                         }
                     },
@@ -863,6 +850,7 @@
                 }
             });
             
+            // Radar Chart
             const radarCtx = document.getElementById('radarChart').getContext('2d');
             if (radarChartInstance) radarChartInstance.destroy();
             radarChartInstance = new Chart(radarCtx, {
@@ -890,7 +878,7 @@
                             max: 5,
                             ticks: { color: '#94a3b8', backdropColor: 'transparent' },
                             grid: { color: '#334155' },
-                            pointLabels: { color: '#94a3b8', font: { size: 10 } }
+                            pointLabels: { color: '#94a3b8' }
                         }
                     },
                     plugins: {
@@ -913,7 +901,7 @@
                                 ${player.name} ${player.name === currentPlayer ? '(TÚ)' : ''}
                             </div>
                             <div style="font-size: 0.875rem; color: #94a3b8;">
-                                ${player.decisions.length} decisiones • ${formatNumber(player.cost)} créditos
+                                ${player.decisions.length} decisiones • $${player.cost}
                             </div>
                         </div>
                     </div>
@@ -962,83 +950,10 @@
             }
         }
 
-        function exportToExcel() {
-            const playerData = allPlayers.find(p => p.name === currentPlayer);
-            
-            if (!playerData) {
-                alert('No hay datos para exportar');
-                return;
-            }
-
-            try {
-                const decisionesData = playerData.decisions.map(id => {
-                    const decision = decisionsData.find(d => d.id === id);
-                    return {
-                        'Decisión': decision.decision,
-                        'Categoría': decision.categoria,
-                        'Costo': decision.costo,
-                        'NPS': decision.nps,
-                        'Evitar Burnout': decision.evitarBurnout,
-                        'Eficiencia': decision.eficiencia,
-                        'Accuracy': decision.accuracy,
-                        'Go-to-Market': decision.goToMkt
-                    };
-                });
-
-                const resumenData = [{
-                    'Jugador': playerData.name,
-                    'Fecha': new Date(playerData.timestamp).toLocaleString('es-AR'),
-                    'Créditos Totales': BUDGET,
-                    'Créditos Usados': playerData.cost,
-                    'Créditos Restantes': BUDGET - playerData.cost,
-                    'Cantidad Decisiones': playerData.decisions.length,
-                    'Score General': playerData.overallScore
-                }];
-
-                const metricasData = [{
-                    'NPS (Satisfacción Paciente)': playerData.averages.nps,
-                    'Evitar Burnout (Staff)': playerData.averages.evitarBurnout,
-                    'Eficiencia (Ahorro)': playerData.averages.eficiencia,
-                    'Accuracy (Precisión)': playerData.averages.accuracy,
-                    'Go-to-Market (Velocidad)': playerData.averages.goToMkt
-                }];
-
-                const wb = XLSX.utils.book_new();
-
-                const wsResumen = XLSX.utils.json_to_sheet(resumenData);
-                wsResumen['!cols'] = [
-                    { wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, 
-                    { wch: 18 }, { wch: 18 }, { wch: 15 }
-                ];
-                XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen");
-
-                const wsMetricas = XLSX.utils.json_to_sheet(metricasData);
-                wsMetricas['!cols'] = [
-                    { wch: 25 }, { wch: 22 }, { wch: 20 }, { wch: 22 }, { wch: 25 }
-                ];
-                XLSX.utils.book_append_sheet(wb, wsMetricas, "Métricas Promedio");
-
-                const wsDecisiones = XLSX.utils.json_to_sheet(decisionesData);
-                wsDecisiones['!cols'] = [
-                    { wch: 40 }, { wch: 20 }, { wch: 10 }, { wch: 8 }, 
-                    { wch: 15 }, { wch: 12 }, { wch: 12 }, { wch: 15 }
-                ];
-                XLSX.utils.book_append_sheet(wb, wsDecisiones, "Decisiones");
-
-                const fecha = new Date().toISOString().split('T')[0];
-                const fileName = `SimGame_${playerData.name.replace(/[^a-zA-Z0-9]/g, '_')}_${fecha}.xlsx`;
-                
-                XLSX.writeFile(wb, fileName);
-                alert('✅ Archivo Excel generado exitosamente:\n' + fileName);
-                
-            } catch (error) {
-                console.error('Error al exportar:', error);
-                alert('❌ Error al generar el archivo Excel. Por favor intenta nuevamente.');
-            }
-        }
-
+        // Inicialización
         updatePlayerCount();
         
+        // Enter para empezar
         document.getElementById('playerName').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') startGame();
         });
