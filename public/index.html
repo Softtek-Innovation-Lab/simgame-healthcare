@@ -720,30 +720,30 @@ async function deleteAllPlayers() {
             document.getElementById(screenId).classList.add('active');
         }
 
-        function updatePlayerCount() {
-            allPlayers = loadPlayers();
+        async function updatePlayerCount() {
+            allPlayers = await loadPlayers();
             document.getElementById('playerCount').textContent = allPlayers.length;
             if (document.getElementById('gamePlayerCount')) {
                 document.getElementById('gamePlayerCount').textContent = allPlayers.length;
             }
         }
 
-        function toggleLeaderboard() {
+        async function toggleLeaderboard() {
             const lb = document.getElementById('welcomeLeaderboard');
             const toggle = document.getElementById('leaderboardToggle');
             if (lb.style.display === 'none') {
                 lb.style.display = 'block';
                 toggle.textContent = 'Ocultar';
-                renderWelcomeLeaderboard();
+                await renderWelcomeLeaderboard();
             } else {
                 lb.style.display = 'none';
                 toggle.textContent = 'Ver';
             }
         }
 
-        function renderWelcomeLeaderboard() {
+        async function renderWelcomeLeaderboard() {
             const container = document.getElementById('welcomeRankingList');
-            allPlayers = loadPlayers();
+            allPlayers = await loadPlayers();
             
             if (allPlayers.length === 0) {
                 container.innerHTML = '<p style="text-align: center; color: #64748b;">Aún no hay jugadores</p>';
@@ -925,10 +925,10 @@ async function submitResults() {
     // Recargar jugadores desde la API
     allPlayers = await loadPlayers();
     
-    showResults(playerData);
+    await showResults(playerData);
 }
-        function showResults(playerData) {
-            allPlayers = loadPlayers();
+        async function showResults(playerData) {
+            allPlayers = await loadPlayers();
             const myRank = allPlayers.findIndex(p => p.name === currentPlayer) + 1;
             
             document.getElementById('resultsPlayerName').textContent = currentPlayer;
