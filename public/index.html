@@ -1538,13 +1538,13 @@
             if (radarChartInstance) radarChartInstance.destroy();
 
             // Crear datasets: uno para estratégicas, otro para no estratégicas
-            const strategicValues = metrics.map(m =>
-                strategicObjectives.includes(m) ? averages[m] : null
-            );
-            const normalValues = metrics.map(m =>
-                !strategicObjectives.includes(m) ? averages[m] : null
-            );
-
+            /*   const strategicValues = metrics.map(m =>
+                   strategicObjectives.includes(m) ? averages[m] : null
+               );
+               const normalValues = metrics.map(m =>
+                   !strategicObjectives.includes(m) ? averages[m] : null
+               );
+   */
             radarChartInstance = new Chart(radarCtx, {
                 type: 'radar',
                 data: {
@@ -1554,34 +1554,35 @@
                     }),
                     datasets: [
                         {
-                            label: 'Objetivos Estratégicos',
-                            data: strategicValues,
-                            backgroundColor: 'rgba(251, 191, 36, 0.3)',
-                            borderColor: '#fbbf24',
-                            borderWidth: 3,
-                            pointBackgroundColor: '#fbbf24',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2,
-                            pointRadius: 6,
-                            pointHoverRadius: 8,
-                            pointHoverBackgroundColor: '#fff',
-                            pointHoverBorderColor: '#fbbf24',
-                            spanGaps: true
-                        },
-                        {
-                            label: 'Otras Métricas',
-                            data: normalValues,
+                            label: 'Todas las Métricas',
+                            data: values, // ← TODAS las métricas
                             backgroundColor: 'rgba(168, 85, 247, 0.2)',
                             borderColor: '#a855f7',
                             borderWidth: 2,
                             pointBackgroundColor: '#a855f7',
                             pointBorderColor: '#fff',
                             pointBorderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
                             pointHoverBackgroundColor: '#fff',
-                            pointHoverBorderColor: '#a855f7',
-                            spanGaps: true
+                            pointHoverBorderColor: '#a855f7'
+                        },
+                        {
+                            label: 'Objetivos Estratégicos',
+                            data: metrics.map(m =>
+                                strategicObjectives.includes(m) ? averages[m] : null
+                            ), // ← Solo las estratégicas
+                            backgroundColor: 'rgba(251, 191, 36, 0.3)',
+                            borderColor: '#fbbf24',
+                            borderWidth: 4,
+                            pointBackgroundColor: '#fbbf24',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 3,
+                            pointRadius: 7,
+                            pointHoverRadius: 9,
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#fbbf24',
+                            spanGaps: true // ← Importante para que no conecte los null
                         }
                     ]
                 },
@@ -1625,7 +1626,6 @@
                     }
                 }
             });
-
             // Generar análisis de objetivos
             renderObjectivesAnalysis(averages);
         }
