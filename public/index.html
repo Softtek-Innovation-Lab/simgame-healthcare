@@ -694,6 +694,11 @@
                 <button class="btn btn-secondary" onclick="resetGame()">
                     REINICIAR
                 </button>
+                <!-- AGREGAR ESTE BOTÓN -->
+                <button class="btn" onclick="openDocsModal()"
+                    style="background: linear-gradient(90deg, #10b981, #059669); color: white;">
+                    📖 GUÍA DE DECISIONES
+                </button>
             </div>
         </div>
 
@@ -1904,7 +1909,188 @@
         document.getElementById('playerName').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') startGame();
         });
+
+
+        function openDocsModal() {
+            document.getElementById('docsModal').style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevenir scroll del fondo
+            renderDocsContent();
+        }
+
+        function closeDocsModal() {
+            document.getElementById('docsModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function renderDocsContent() {
+            const container = document.getElementById('docsContent');
+
+            const categories = {
+                'Tecnología AI': decisionsData.filter(d => d.categoria === 'Tecnología AI'),
+                'Procesos': decisionsData.filter(d => d.categoria === 'Procesos'),
+                'Experiencia Paciente': decisionsData.filter(d => d.categoria === 'Experiencia Paciente')
+            };
+
+            const descriptions = {
+                1: {
+                    desc: 'Sistema de inteligencia artificial que evalúa automáticamente la urgencia y complejidad de cada paciente al ingresar a la guardia.',
+                    impl: 'Reduce tiempos de espera para casos críticos, mejora precisión diagnóstica, disminuye carga cognitiva del personal. Requiere integración profunda con sistemas existentes (6-8 meses).'
+                },
+                2: {
+                    desc: 'Asistente de IA que transcribe automáticamente consultas médicas y genera documentación clínica en tiempo real.',
+                    impl: 'Reduce hasta 2 horas de tiempo administrativo por turno, mejora calidad de vida del equipo. Requiere infraestructura de audio y validación médica.'
+                },
+                3: {
+                    desc: 'Sistema predictivo que anticipa altas hospitalarias y optimiza asignación de camas disponibles.',
+                    impl: 'Optimiza flujo entre guardia e internación, reduce esperas en camillas de pasillo. Requiere integración con múltiples sistemas.'
+                },
+                4: {
+                    desc: 'Monitoreo en tiempo real de signos vitales y laboratorios, detectando patrones de deterioro clínico.',
+                    impl: 'Previene eventos adversos mediante detección precoz, reduce mortalidad evitable. Puede generar fatiga de alertas si no está calibrado.'
+                },
+                5: {
+                    desc: 'Business intelligence que analiza patrones históricos y contextuales para predecir picos de demanda.',
+                    impl: 'Optimización proactiva de recursos, reducción de costos, anticipación a saturación. Requiere datos históricos de calidad.'
+                },
+                6: {
+                    desc: 'Guías clínicas digitales asistidas por IA que sugieren diagnóstico y tratamiento óptimo según evidencia actualizada.',
+                    impl: 'Reduce variabilidad en práctica clínica, mejora outcomes por adherencia a mejores prácticas. Requiere consenso médico.'
+                },
+                7: {
+                    desc: 'Reorganización del equipo redistribuyendo tareas según competencias específicas (enfermeros de práctica avanzada, médicos generalistas, especialistas).',
+                    impl: 'Cada profesional trabaja en el tope de su licencia, reduce burnout. Requiere gestión del cambio y ajustes culturales significativos.'
+                },
+                8: {
+                    desc: 'Circuitos diferenciados según complejidad: consultorio rápido, observación breve, área crítica, zona de procedimientos.',
+                    impl: 'Reduce tiempos de espera para casos simples, mejor experiencia del paciente. Requiere remodelación física o reingeniería de espacios.'
+                },
+                9: {
+                    desc: 'Centro de comando con dashboards en tiempo real: ocupación, tiempos de espera, alertas, disponibilidad de recursos.',
+                    impl: 'Visibilidad total del estado operativo, intervención proactiva ante problemas. Requiere infraestructura tecnológica robusta.'
+                },
+                10: {
+                    desc: 'Circuito express para pacientes de baja complejidad con atención en menos de 60 minutos.',
+                    impl: 'Mejora dramática en satisfacción, descongestiona circuito principal. Fácil implementación con ajustes organizacionales menores.'
+                },
+                11: {
+                    desc: 'Asistente virtual 24/7 en web, WhatsApp y app que responde consultas, explica tiempos de espera, orienta sobre síntomas.',
+                    impl: 'Reduce consultas administrativas, mejora expectativas. Implementación rápida con plataformas comerciales existentes.'
+                },
+                12: {
+                    desc: 'App móvil post-alta con plan de cuidados, recordatorios de medicación, canal de consultas y síntomas de alarma.',
+                    impl: 'Reduce reconsultas evitables, mejora adherencia al tratamiento. Mayor seguridad percibida post-alta.'
+                },
+                13: {
+                    desc: 'Plataforma web donde pacientes acceden a resultados de laboratorio, imágenes e informes sin volver presencialmente.',
+                    impl: 'Elimina filas para retiro de estudios, mayor transparencia. Implementación rápida con sistemas de laboratorio modernos.'
+                },
+                14: {
+                    desc: 'Turnos virtuales con actualizaciones por SMS/WhatsApp sobre posición en fila y notificaciones de turno próximo.',
+                    impl: 'Reduce ansiedad por falta de información, descongestiona sala de espera. Tecnología simple y económica de implementar.'
+                },
+                15: {
+                    desc: 'Pantallas digitales mostrando tiempos de espera, cantidad de pacientes, contenido educativo y campañas de prevención.',
+                    impl: 'Gestiona expectativas proactivamente, reduce consultas ansiosas. Inversión mínima con impacto inmediato en percepción.'
+                }
+            };
+
+            const categoryColors = {
+                'Tecnología AI': { border: '#06b6d4', bg: 'rgba(6, 182, 212, 0.1)', icon: '🤖' },
+                'Procesos': { border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)', icon: '🔄' },
+                'Experiencia Paciente': { border: '#10b981', bg: 'rgba(16, 185, 129, 0.1)', icon: '👥' }
+            };
+
+            container.innerHTML = Object.entries(categories).map(([catName, decisions]) => {
+                const colors = categoryColors[catName];
+                return `
+            <div style="margin-bottom: 48px;">
+                <h2 style="font-family: 'Orbitron', sans-serif; font-size: 2rem; color: ${colors.border}; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+                    ${colors.icon} ${catName.toUpperCase()}
+                </h2>
+                
+                ${decisions.map(d => {
+                    const info = descriptions[d.id];
+                    return `
+                        <div style="background: ${colors.bg}; border: 2px solid ${colors.border}; border-radius: 12px; padding: 24px; margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                                <h3 style="font-size: 1.5rem; font-weight: 700; color: #f1f5f9; margin: 0;">
+                                    ${d.decision}
+                                </h3>
+                                <div style="font-size: 1.75rem; font-weight: 900; color: ${colors.border}; white-space: nowrap; margin-left: 20px;">
+                                    ${formatNumber(d.costo)}
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+                                <span style="background: rgba(34, 211, 238, 0.2); border: 1px solid #22d3ee; padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">
+                                    NPS: ${d.nps}/5
+                                </span>
+                                <span style="background: rgba(168, 85, 247, 0.2); border: 1px solid #a855f7; padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">
+                                    Burnout: ${d.evitarBurnout}/5
+                                </span>
+                                <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">
+                                    Eficiencia: ${d.eficiencia}/5
+                                </span>
+                                <span style="background: rgba(251, 191, 36, 0.2); border: 1px solid #fbbf24; padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">
+                                    Accuracy: ${d.accuracy}/5
+                                </span>
+                                <span style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">
+                                    GTM: ${d.goToMkt}/5
+                                </span>
+                            </div>
+                            
+                            <p style="color: #e2e8f0; line-height: 1.6; margin-bottom: 12px;">
+                                <strong style="color: ${colors.border};">¿Qué es?</strong><br>
+                                ${info.desc}
+                            </p>
+                            
+                            <p style="color: #cbd5e1; line-height: 1.6; font-size: 0.9rem;">
+                                <strong style="color: ${colors.border};">Implicancias:</strong><br>
+                                ${info.impl}
+                            </p>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+            }).join('');
+        }
+
+        // Cerrar modal con tecla ESC
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && document.getElementById('docsModal').style.display === 'block') {
+                closeDocsModal();
+            }
+        });
+
     </script>
+
+
+
+    <!-- MODAL DE DOCUMENTACIÓN -->
+    <div id="docsModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; overflow-y: auto; padding: 20px;">
+        <div style="max-width: 1200px; margin: 0 auto; position: relative;">
+            <button onclick="closeDocsModal()"
+                style="position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; border: none; width: 50px; height: 50px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                ✕
+            </button>
+
+            <div
+                style="background: rgba(30, 41, 59, 0.95); border: 2px solid #22d3ee; border-radius: 16px; padding: 40px; margin-top: 60px;">
+                <h1
+                    style="font-family: 'Orbitron', sans-serif; font-size: 3rem; background: linear-gradient(90deg, #22d3ee, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px;">
+                    📖 GUÍA DE DECISIONES
+                </h1>
+                <p style="color: #94a3b8; font-size: 1.125rem; margin-bottom: 40px;">
+                    Catálogo completo de las 15 decisiones disponibles en el juego
+                </p>
+
+                <div id="docsContent"></div>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>
