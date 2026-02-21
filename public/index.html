@@ -605,7 +605,7 @@
     </div>
 
     <script>
-        const decisionsData = [
+    /*    const decisionsData = [
             { id: 1, decision: "AI de triage predictivo", categoria: "Tecnología AI", costo: 3500, nps: 4, evitarBurnout: 4, eficiencia: 5, accuracy: 5, goToMkt: 2 },
             { id: 2, decision: "Copiloto de documentación clínica", categoria: "Tecnología AI", costo: 3000, nps: 3, evitarBurnout: 5, eficiencia: 4, accuracy: 4, goToMkt: 2 },
             { id: 3, decision: "Predicción de altas y disponibilidad de camas", categoria: "Tecnología AI", costo: 2500, nps: 3, evitarBurnout: 3, eficiencia: 5, accuracy: 3, goToMkt: 3 },
@@ -621,8 +621,198 @@
             { id: 13, decision: "Chatbot asistente para pacientes", categoria: "Experiencia Paciente", costo: 1500, nps: 4, evitarBurnout: 2, eficiencia: 3, accuracy: 2, goToMkt: 4 },
             { id: 14, decision: "Explicaciones automáticas post-atención", categoria: "Experiencia Paciente", costo: 1000, nps: 4, evitarBurnout: 1, eficiencia: 2, accuracy: 2, goToMkt: 5 },
             { id: 15, decision: "Canal digital de seguimiento post-alta", categoria: "Experiencia Paciente", costo: 1200, nps: 4, evitarBurnout: 1, eficiencia: 3, accuracy: 3, goToMkt: 4 },
-            { id: 16, decision: "Implementar un nuevo HIS", categoria: "Infra", costo: 1200, nps: 4, evitarBurnout: 1, eficiencia: 3, accuracy: 3, goToMkt: 4 }
+            { id: 16, decision: "Sumar personal médico (+5 personas)", categoria: "Recursos", costo: 3400, nps: 4, evitarBurnout: 4, eficiencia: 2, accuracy: 3, goToMkt: 4 }
         ];
+    */
+
+    const decisionsData = [
+    // =============================================
+    // TECNOLOGÍA AI (5 decisiones)
+    // Alto impacto en Accuracy y Eficiencia
+    // Go-to-Market bajo (implementación lenta)
+    // Costo: 1500 - 3500
+    // =============================================
+    { 
+        id: 1, 
+        decision: "AI de triage predictivo", 
+        categoria: "Tecnología AI", 
+        costo: 3500, 
+        nps: 4, 
+        evitarBurnout: 4, 
+        eficiencia: 5, 
+        accuracy: 5, 
+        goToMkt: 2 
+    },
+    { 
+        id: 2, 
+        decision: "Copiloto de documentación clínica", 
+        categoria: "Tecnología AI", 
+        costo: 3000, 
+        nps: 3, 
+        evitarBurnout: 5, 
+        eficiencia: 4, 
+        accuracy: 4, 
+        goToMkt: 2 
+    },
+    { 
+        id: 3, 
+        decision: "Predicción de altas y gestión de camas", 
+        categoria: "Tecnología AI", 
+        costo: 2500, 
+        nps: 3, 
+        evitarBurnout: 3, 
+        eficiencia: 5, 
+        accuracy: 3, 
+        goToMkt: 3 
+    },
+    { 
+        id: 4, 
+        decision: "Alertas inteligentes de riesgo clínico", 
+        categoria: "Tecnología AI", 
+        costo: 2000, 
+        nps: 2, 
+        evitarBurnout: 3, 
+        eficiencia: 3, 
+        accuracy: 5, 
+        goToMkt: 3 
+    },
+    { 
+        id: 5, 
+        decision: "Análisis predictivo de demanda y recursos", 
+        categoria: "Tecnología AI", 
+        costo: 1500, 
+        nps: 2, 
+        evitarBurnout: 2, 
+        eficiencia: 4, 
+        accuracy: 2, 
+        goToMkt: 3 
+    },
+
+    // =============================================
+    // PROCESOS (5 decisiones)
+    // Impacto equilibrado en todas las métricas
+    // Go-to-Market medio (cambios organizacionales)
+    // Costo: 1500 - 2500
+    // =============================================
+    { 
+        id: 6, 
+        decision: "Protocolos clínicos estandarizados con IA", 
+        categoria: "Procesos", 
+        costo: 2500, 
+        nps: 2, 
+        evitarBurnout: 2, 
+        eficiencia: 4, 
+        accuracy: 5, 
+        goToMkt: 2 
+    },
+    { 
+        id: 7, 
+        decision: "Rediseño de roles y responsabilidades", 
+        categoria: "Procesos", 
+        costo: 2000, 
+        nps: 3, 
+        evitarBurnout: 4, 
+        eficiencia: 4, 
+        accuracy: 3, 
+        goToMkt: 3 
+    },
+    { 
+        id: 8, 
+        decision: "Separación de flujos de atención", 
+        categoria: "Procesos", 
+        costo: 1800, 
+        nps: 3, 
+        evitarBurnout: 3, 
+        eficiencia: 4, 
+        accuracy: 3, 
+        goToMkt: 3 
+    },
+    { 
+        id: 9, 
+        decision: "Sala de control operativa en tiempo real", 
+        categoria: "Procesos", 
+        costo: 1800, 
+        nps: 2, 
+        evitarBurnout: 3, 
+        eficiencia: 5, 
+        accuracy: 3, 
+        goToMkt: 4 
+    },
+    { 
+        id: 10, 
+        decision: "Fast-track por nivel de complejidad", 
+        categoria: "Procesos", 
+        costo: 1500, 
+        nps: 4, 
+        evitarBurnout: 3, 
+        eficiencia: 5, 
+        accuracy: 3, 
+        goToMkt: 4 
+    },
+
+    // =============================================
+    // EXPERIENCIA PACIENTE (5 decisiones)
+    // Alto impacto en NPS
+    // Go-to-Market alto (implementación rápida)
+    // Bajo impacto en Accuracy
+    // Costo: 800 - 1500
+    // =============================================
+    { 
+        id: 11, 
+        decision: "Chatbot asistente multicanal", 
+        categoria: "Experiencia Paciente", 
+        costo: 1500, 
+        nps: 4, 
+        evitarBurnout: 2, 
+        eficiencia: 3, 
+        accuracy: 2, 
+        goToMkt: 4 
+    },
+    { 
+        id: 12, 
+        decision: "App de seguimiento post-alta", 
+        categoria: "Experiencia Paciente", 
+        costo: 1200, 
+        nps: 4, 
+        evitarBurnout: 1, 
+        eficiencia: 3, 
+        accuracy: 3, 
+        goToMkt: 4 
+    },
+    { 
+        id: 13, 
+        decision: "Portal de resultados y estudios online", 
+        categoria: "Experiencia Paciente", 
+        costo: 1100, 
+        nps: 5, 
+        evitarBurnout: 1, 
+        eficiencia: 2, 
+        accuracy: 2, 
+        goToMkt: 5 
+    },
+    { 
+        id: 14, 
+        decision: "Sistema de turnos y notificaciones digitales", 
+        categoria: "Experiencia Paciente", 
+        costo: 1000, 
+        nps: 4, 
+        evitarBurnout: 1, 
+        eficiencia: 2, 
+        accuracy: 1, 
+        goToMkt: 5 
+    },
+    { 
+        id: 15, 
+        decision: "Pantallas informativas en sala de espera", 
+        categoria: "Experiencia Paciente", 
+        costo: 800, 
+        nps: 5, 
+        evitarBurnout: 1, 
+        eficiencia: 2, 
+        accuracy: 1, 
+        goToMkt: 5 
+    }
+];
 
         const BUDGET = 10000;
 
@@ -645,8 +835,7 @@
         const categoryColors = {
             'Tecnología AI': { border: '#06b6d4', dot: '#06b6d4' },
             'Procesos': { border: '#f59e0b', dot: '#f59e0b' },
-            'Experiencia Paciente': { border: '#10b981', dot: '#10b981' },
-            'Infra': { border: '#10b181', dot: '#10b181' },
+            'Experiencia Paciente': { border: '#10b981', dot: '#10b981' }
         };
 
         let currentPlayer = '';
