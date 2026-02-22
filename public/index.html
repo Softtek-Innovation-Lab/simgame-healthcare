@@ -757,29 +757,61 @@
             </div>
 
             <!-- ADMIN PANEL -->
-            <div id="adminPanel" class="welcome-screen" style="padding: 40px;">
-                <h1 style="color: white; font-size: 3rem;">🔧 PANEL DE ADMIN</h1>
-                <p style="color: white; font-size: 1.5rem;">Hola Lean</p>
+            <div id="adminPanel" class="welcome-screen">
+                <div style="padding: 40px; min-height: 100vh;">
+                    <h1 class="main-title title-font" style="margin-bottom: 20px;">
+                        🔧 PANEL DE ADMINISTRACIÓN
+                    </h1>
 
-                <div style="background: rgba(34, 211, 238, 0.2); padding: 20px; border-radius: 12px; margin: 20px 0;">
-                    <p style="color: white; font-size: 1.2rem;">Jugadores: <span id="adminPlayerCount">0</span></p>
-                </div>
+                    <div class="card card-cyan">
+                        <h3 style="color: #22d3ee; margin-bottom: 20px;">📊 Estado del Juego</h3>
 
-                <button onclick="adminResetGame()"
-                    style="background: red; color: white; padding: 20px 40px; font-size: 1.2rem; border: none; border-radius: 8px; cursor: pointer;">
-                    🗑️ RESETEAR TODO
-                </button>
+                        <div
+                            style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
+                            <div style="text-align: center;">
+                                <div style="color: #94a3b8; font-size: 0.875rem;">Jugadores</div>
+                                <div style="color: #22d3ee; font-size: 3rem; font-weight: 900;" id="adminPlayerCount">0
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="color: #94a3b8; font-size: 0.875rem;">Score Promedio</div>
+                                <div style="color: #22d3ee; font-size: 3rem; font-weight: 900;" id="adminAvgScore">0
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="color: #94a3b8; font-size: 0.875rem;">Presupuesto Promedio</div>
+                                <div style="color: #22d3ee; font-size: 3rem; font-weight: 900;" id="adminAvgCost">0
+                                </div>
+                            </div>
+                        </div>
 
-                <button onclick="showScreen('welcomeScreen')"
-                    style="background: #475569; color: white; padding: 20px 40px; font-size: 1.2rem; border: none; border-radius: 8px; cursor: pointer; margin-left: 10px;">
-                    ← VOLVER
-                </button>
+                        <h3 style="color: #fbbf24; margin-bottom: 20px;">🏆 Top 5 Jugadores</h3>
+                        <div id="adminTopPlayers" style="min-height: 100px;">
+                            <p style="color: #64748b; text-align: center;">Cargando...</p>
+                        </div>
 
-                <div id="adminTopPlayers" style="color: white; margin-top: 20px;">
-                    Cargando jugadores...
+                        <hr style="border: 1px solid #334155; margin: 30px 0;">
+
+                        <button class="btn btn-full" onclick="adminResetGame()"
+                            style="background: linear-gradient(90deg, #ef4444, #dc2626); color: white; margin-bottom: 15px;">
+                            🗑️ RESETEAR TODOS LOS DATOS
+                        </button>
+
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                            <button class="btn btn-primary" onclick="adminPlayNormal()">
+                                🎮 JUGAR NORMAL
+                            </button>
+                            <button class="btn btn-secondary" onclick="adminViewRanking()">
+                                👀 VER RANKING
+                            </button>
+                            <button class="btn btn-secondary" onclick="showScreen('welcomeScreen')">
+                                ← VOLVER
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-
             <div class="stats-grid">
                 <div class="stat-card" style="border-color: #fbbf24;">
                     <p class="stat-label">Tu Score</p>
