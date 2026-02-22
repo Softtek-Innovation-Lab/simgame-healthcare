@@ -1198,10 +1198,18 @@
         }
 
         function showScreen(screenId) {
+            // Remover active de TODAS las pantallas
             document.querySelectorAll('.welcome-screen, .game-screen, .results-screen').forEach(el => {
                 el.classList.remove('active');
             });
-            document.getElementById(screenId).classList.add('active');
+
+            // Agregar active a la pantalla solicitada
+            const screen = document.getElementById(screenId);
+            if (screen) {
+                screen.classList.add('active');
+            } else {
+                console.error('Pantalla no encontrada:', screenId);
+            }
         }
 
         async function updatePlayerCount() {
