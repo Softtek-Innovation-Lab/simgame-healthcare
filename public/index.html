@@ -2157,13 +2157,13 @@
         // FUNCIONES DE ADMINISTRACIÓN
         // ========================================
 
-        function showAdminPanel() {
-            updateAdminStats();
+        async function showAdminPanel() {
+            await updateAdminStats(); // ← Agregar await aquí
             showScreen('adminPanel');
         }
 
-        function updateAdminStats() {
-            allPlayers = loadPlayers();
+        async function updateAdminStats() {
+            allPlayers = await loadPlayers(); // ← Agregar await aquí
 
             // Total de jugadores
             document.getElementById('adminPlayerCount').textContent = allPlayers.length;
@@ -2205,7 +2205,6 @@
         `).join('');
             }
         }
-
         async function adminResetGame() {
             const confirmation = prompt(
                 '⚠️ CONFIRMACIÓN REQUERIDA\n\n' +
