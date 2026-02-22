@@ -1253,27 +1253,32 @@
                 alert('Por favor ingresa tu nombre');
                 return;
             }
+
             currentPlayer = name;
             selectedDecisions = [];
-            strategicObjectives = []; // Reset objetivos
+            strategicObjectives = [];
 
             // Detectar si es admin
             const isAdmin = name.toLowerCase() === 'leanbalbo';
 
             if (isAdmin) {
-                // Modo Admin: Mostrar opciones especiales
-                if (confirm('👋 Hola Lean! ¿Quieres entrar en modo administrador?\n\n✅ SÍ: Acceso a funciones admin\n❌ NO: Jugar normalmente')) {
+                const enterAdminMode = confirm('👋 Hola Lean!\n\n¿Quieres entrar en modo administrador?\n\n✅ SÍ: Acceso a funciones admin\n❌ NO: Jugar normalmente');
+
+                if (enterAdminMode) {
                     showAdminPanel();
-                    return;
+                    return; // ← IMPORTANTE: Salir aquí
                 }
+                // Si dice NO, continúa al juego normal
             }
 
-            // Ir a pantalla de objetivos
+            // Ir a pantalla de objetivos (juego normal)
             document.getElementById('objectivesPlayerName').textContent = name;
             renderObjectivesScreen();
             showScreen('objectivesScreen');
             updatePlayerCount();
         }
+
+
         function renderObjectivesScreen() {
             const container = document.getElementById('objectivesGrid');
 
@@ -2157,54 +2162,79 @@
         // FUNCIONES DE ADMINISTRACIÓN
         // ========================================
 
+        // ========================================
+        // FUNCIONES DE ADMINISTRACIÓN
+        // ========================================
+
         async function showAdminPanel() {
-            await updateAdminStats(); // ← Agregar await aquí
-            showScreen('adminPanel');
+            try {
+                await updateAdminStats();
+                showScreen('adminPanel');
+            } catch (error) {
+                console.error('Error en showAdminPanel:', error);
+                alert('Error al cargar el panel de admin. Revisa la consola.');
+            }
         }
 
         async function updateAdminStats() {
-            allPlayers = await loadPlayers(); // ← Agregar await aquí
+            try {
+                // Cargar jugadores
+                allPlayers = await loadPlayers();
 
-            // Total de jugadores
-            document.getElementById('adminPlayerCount').textContent = allPlayers.length;
+                // Verificar que los elementos existan
+                const playerCountEl = document.getElementById('adminPlayerCount');
+                const avgScoreEl = document.getElementById('adminAvgScore');
+                const avgCostEl = document.getElementById('adminAvgCost');
+                const topPlayersEl = document.getElementById('adminTopPlayers');
 
-            // Score promedio
-            const avgScore = allPlayers.length > 0
-                ? (allPlayers.reduce((sum, p) => sum + p.overallScore, 0) / allPlayers.length).toFixed(2)
-                : 0;
-            document.getElementById('adminAvgScore').textContent = avgScore;
+                if (!playerCountEl || !avgScoreEl || !avgCostEl || !topPlayersEl) {
+                    console.error('Elementos del admin panel no encontrados');
+                    return;
+                }
 
-            // Presupuesto promedio
-            const avgCost = allPlayers.length > 0
-                ? Math.round(allPlayers.reduce((sum, p) => sum + p.cost, 0) / allPlayers.length)
-                : 0;
-            document.getElementById('adminAvgCost').textContent = formatNumber(avgCost);
+                // Total de jugadores
+                playerCountEl.textContent = allPlayers.length;
 
-            // Top 5 jugadores
-            const topPlayers = document.getElementById('adminTopPlayers');
-            if (allPlayers.length === 0) {
-                topPlayers.innerHTML = '<p style="color: #64748b; text-align: center;">No hay jugadores aún</p>';
-            } else {
-                topPlayers.innerHTML = allPlayers.slice(0, 5).map((player, idx) => `
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(15, 23, 42, 0.5); border-radius: 8px; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 1.5rem; font-weight: 900; color: ${idx === 0 ? '#fbbf24' : idx === 1 ? '#cbd5e1' : idx === 2 ? '#d97706' : '#64748b'}; min-width: 30px;">
-                        ${idx + 1}°
-                    </span>
-                    <div>
-                        <div style="font-weight: 700; color: #e2e8f0;">${player.name}</div>
-                        <div style="font-size: 0.75rem; color: #64748b;">
-                            ${player.decisions.length} decisiones • ${formatNumber(player.cost)} créditos
+                // Score promedio
+                const avgScore = allPlayers.length > 0
+                    ? (allPlayers.reduce((sum, p) => sum + p.overallScore, 0) / allPlayers.length).toFixed(2)
+                    : '0.00';
+                avgScoreEl.textContent = avgScore;
+
+                // Presupuesto promedio
+                const avgCost = allPlayers.length > 0
+                    ? Math.round(allPlayers.reduce((sum, p) => sum + p.cost, 0) / allPlayers.length)
+                    : 0;
+                avgCostEl.textContent = formatNumber(avgCost);
+
+                // Top 5 jugadores
+                if (allPlayers.length === 0) {
+                    topPlayersEl.innerHTML = '<p style="color: #64748b; text-align: center;">No hay jugadores aún</p>';
+                } else {
+                    topPlayersEl.innerHTML = allPlayers.slice(0, 5).map((player, idx) => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(15, 23, 42, 0.5); border-radius: 8px; margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.5rem; font-weight: 900; color: ${idx === 0 ? '#fbbf24' : idx === 1 ? '#cbd5e1' : idx === 2 ? '#d97706' : '#64748b'}; min-width: 30px;">
+                            ${idx + 1}°
+                        </span>
+                        <div>
+                            <div style="font-weight: 700; color: #e2e8f0;">${player.name}</div>
+                            <div style="font-size: 0.75rem; color: #64748b;">
+                                ${player.decisions.length} decisiones • ${formatNumber(player.cost)} créditos
+                            </div>
                         </div>
                     </div>
+                    <span style="font-size: 1.5rem; font-weight: 900; color: #fbbf24;">
+                        ${player.overallScore}
+                    </span>
                 </div>
-                <span style="font-size: 1.5rem; font-weight: 900; color: #fbbf24;">
-                    ${player.overallScore}
-                </span>
-            </div>
-        `).join('');
+            `).join('');
+                }
+            } catch (error) {
+                console.error('Error en updateAdminStats:', error);
             }
         }
+
         async function adminResetGame() {
             const confirmation = prompt(
                 '⚠️ CONFIRMACIÓN REQUERIDA\n\n' +
@@ -2219,7 +2249,7 @@
                 await deleteAllPlayers();
                 allPlayers = [];
                 alert('✅ Todos los datos han sido eliminados exitosamente');
-                updateAdminStats();
+                await updateAdminStats();
             } else if (confirmation !== null) {
                 alert('❌ Cancelado. Debes escribir exactamente: RESET');
             }
@@ -2234,10 +2264,13 @@
             showScreen('objectivesScreen');
         }
 
-        function adminViewRanking() {
+        async function adminViewRanking() {
+            // Cargar jugadores primero
+            allPlayers = await loadPlayers();
+
             // Crear un jugador temporal para ver el ranking
             const tempPlayer = {
-                name: 'leanbalbo',
+                name: 'ADMIN',
                 decisions: [],
                 cost: 0,
                 averages: { nps: 0, evitarBurnout: 0, eficiencia: 0, accuracy: 0, goToMkt: 0 },
@@ -2246,10 +2279,9 @@
                 timestamp: new Date().toISOString()
             };
 
-            currentPlayer = 'leanbalbo';
+            currentPlayer = 'ADMIN';
             showResults(tempPlayer);
         }
-
     </script>
 
 
