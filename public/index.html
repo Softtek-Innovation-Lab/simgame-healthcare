@@ -1270,13 +1270,14 @@
             const isAdmin = name.toLowerCase() === 'leanbalbo';
 
             if (isAdmin) {
-                const enterAdminMode = confirm('👋 Hola Lean!\n\n¿Quieres entrar en modo administrador?\n\n✅ SÍ: Acceso a funciones admin\n❌ NO: Jugar normalmente');
+                // confirm retorna true si presiona "Aceptar", false si presiona "Cancelar"
+                const enterAdminMode = confirm('👋 Hola Lean!\n\n¿Quieres entrar en modo administrador?\n\nAceptar = Modo Admin\nCancelar = Jugar normal');
 
-                if (enterAdminMode) {
+                if (enterAdminMode === true) {
                     showAdminPanel();
-                    return; // ← IMPORTANTE: Salir aquí
+                    return; // Salir de la función aquí
                 }
-                // Si dice NO, continúa al juego normal
+                // Si presiona Cancelar (false), continúa al flujo normal
             }
 
             // Ir a pantalla de objetivos (juego normal)
