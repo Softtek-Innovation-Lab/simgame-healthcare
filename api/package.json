@@ -2,6 +2,9 @@
   "name": "simgame-api",
   "version": "1.0.0",
   "description": "Azure Functions API for SimGame multiplayer",
+  "scripts": {
+    "postinstall": "rm -f node_modules/fast-xml-builder"
+  },
   "dependencies": {
     "@azure/data-tables": "^13.2.2"
   }
