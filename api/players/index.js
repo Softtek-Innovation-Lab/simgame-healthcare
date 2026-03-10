@@ -22,6 +22,18 @@ module.exports = async function (context, req) {
     }
 
     try {
+        // Get event ID from query parameter
+        const eventId = req.query.event;
+
+        if (!eventId) {
+            context.res = {
+                status: 400,
+                headers: corsHeaders,
+                body: { error: 'Missing required query parameter: event' }
+            };
+            return;
+        }
+
         // Get connection string
         const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
         
@@ -46,12 +58,16 @@ module.exports = async function (context, req) {
             context.log('Table already exists or error creating:', e.message);
         }
 
-        // GET - List all players
+        // GET - List players for this event
         if (req.method === 'GET') {
-            context.log('GET: Loading all players');
+            context.log(`GET: Loading players for event: ${eventId}`);
             
             const players = [];
-            const entities = tableClient.listEntities();
+            const entities = tableClient.listEntities({
+                queryOptions: {
+                    filter: `PartitionKey eq '${eventId}'`
+                }
+            });
 
             for await (const entity of entities) {
                 try {
@@ -71,7 +87,7 @@ module.exports = async function (context, req) {
             // Sort by score
             players.sort((a, b) => b.overallScore - a.overallScore);
 
-            context.log(`Returning ${players.length} players`);
+            context.log(`Returning ${players.length} players for event ${eventId}`);
             context.res = {
                 status: 200,
                 headers: corsHeaders,
@@ -80,9 +96,9 @@ module.exports = async function (context, req) {
             return;
         }
 
-        // POST - Save player
+        // POST - Save player to this event
         if (req.method === 'POST') {
-            context.log('POST: Saving player');
+            context.log(`POST: Saving player for event: ${eventId}`);
             
             const player = req.body;
 
@@ -95,13 +111,13 @@ module.exports = async function (context, req) {
                 return;
             }
 
-            // Create entity
+            // Create entity with eventId as partitionKey
             const rowKey = player.name
                 .replace(/[^a-zA-Z0-9]/g, '_')
                 .substring(0, 50);
 
             const entity = {
-                partitionKey: 'players',
+                partitionKey: eventId,
                 rowKey: rowKey,
                 name: player.name,
                 decisions: JSON.stringify(player.decisions),
@@ -113,7 +129,7 @@ module.exports = async function (context, req) {
 
             await tableClient.upsertEntity(entity, "Replace");
             
-            context.log(`Player saved: ${player.name}`);
+            context.log(`Player saved: ${player.name} for event ${eventId}`);
             context.res = {
                 status: 200,
                 headers: corsHeaders,
@@ -122,11 +138,15 @@ module.exports = async function (context, req) {
             return;
         }
 
-        // DELETE - Remove all players
+        // DELETE - Remove all players for this event
         if (req.method === 'DELETE') {
-            context.log('DELETE: Removing all players');
+            context.log(`DELETE: Removing players for event: ${eventId}`);
             
-            const entities = tableClient.listEntities();
+            const entities = tableClient.listEntities({
+                queryOptions: {
+                    filter: `PartitionKey eq '${eventId}'`
+                }
+            });
             let count = 0;
 
             for await (const entity of entities) {
@@ -134,7 +154,7 @@ module.exports = async function (context, req) {
                 count++;
             }
 
-            context.log(`Deleted ${count} players`);
+            context.log(`Deleted ${count} players for event ${eventId}`);
             context.res = {
                 status: 200,
                 headers: corsHeaders,

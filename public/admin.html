@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimGame Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <div id="app"></div>
+    </div>
+
+    <script type="module">
+        import { listEvents, createEvent } from './js/api.js';
+        import { formatNumber } from './js/data.js';
+
+        const container = document.getElementById('app');
+        let authenticatedAs = null;
+        let allEvents = [];
+
+        // ========================================
+        // LOGIN SCREEN
+        // ========================================
+        function showLogin() {
+            container.innerHTML = `
+                <div class="header">
+                    <h1 class="main-title title-font">🔧 ADMIN</h1>
+                    <p style="font-size: 1.25rem; color: #cbd5e1;">Panel de Administración de Eventos</p>
+                </div>
+
+                <div class="card card-cyan" style="max-width: 500px; margin: 0 auto;">
+                    <div class="input-group">
+                        <label for="adminCode">Ingresa tu código de administrador:</label>
+                        <input type="password" id="adminCode" placeholder="Código de admin" autocomplete="off">
+                    </div>
+
+                    <div id="loginError" class="alert" style="display: none; margin-bottom: 16px;">
+                        ❌ Código no reconocido. No coincide con ningún evento.
+                    </div>
+
+                    <button class="btn btn-primary btn-full" id="loginBtn">
+                        🔑 ENTRAR
+                    </button>
+
+                    <div style="margin-top: 16px; text-align: center;">
+                        <a href="/" style="color: #64748b; text-decoration: none; font-size: 0.875rem;">← Volver al inicio</a>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('loginBtn').addEventListener('click', handleLogin);
+            document.getElementById('adminCode').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleLogin();
+            });
+            document.getElementById('adminCode').focus();
+        }
+
+        async function handleLogin() {
+            const code = document.getElementById('adminCode').value.trim();
+            if (!code) return;
+
+            const errorEl = document.getElementById('loginError');
+            errorEl.style.display = 'none';
+
+            try {
+                allEvents = await listEvents();
+                const matchingEvent = allEvents.find(e =>
+                    e.adminUsername && e.adminUsername.toLowerCase() === code.toLowerCase()
+                );
+
+                if (matchingEvent) {
+                    authenticatedAs = matchingEvent.adminDisplayName || code;
+                    showAdminPanel();
+                } else {
+                    errorEl.style.display = 'flex';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorEl.textContent = '❌ Error de conexión. Intenta nuevamente.';
+                errorEl.style.display = 'flex';
+            }
+        }
+
+        // ========================================
+        // ADMIN PANEL
+        // ========================================
+        async function showAdminPanel() {
+            allEvents = await listEvents();
+
+            container.innerHTML = `
+                <div class="header">
+                    <h1 class="main-title title-font">🔧 PANEL DE ADMINISTRACIÓN</h1>
+                    <p style="font-size: 1.25rem; color: #cbd5e1;">
+                        Bienvenido, <span style="color: #fbbf24; font-weight: 700;">${authenticatedAs}</span>
+                    </p>
+                </div>
+
+                <div style="max-width: 900px; margin: 0 auto;">
+                    <!-- Create Event Section -->
+                    <div class="card" style="border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);">
+                        <h3 style="color: #10b981; margin-bottom: 20px; font-size: 1.5rem;">🆕 Crear Nuevo Evento</h3>
+                        <div style="display: grid; gap: 16px;">
+                            <div class="input-group" style="margin-bottom: 0;">
+                                <label for="newEventId">ID del Evento (slug para la URL)</label>
+                                <input type="text" id="newEventId" placeholder="ej: mexico-apr-2026">
+                            </div>
+                            <div class="input-group" style="margin-bottom: 0;">
+                                <label for="newEventName">Nombre del Evento + Fecha</label>
+                                <input type="text" id="newEventName" placeholder="Softtek Discovery México - 01-abr-2026">
+                            </div>
+                            <button class="btn btn-success btn-full" id="createEventBtn">
+                                ✨ CREAR EVENTO
+                            </button>
+                            <div id="createEventResult" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Events List -->
+                    <div class="card" style="border-color: #a855f7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);">
+                        <h3 style="color: #a855f7; margin-bottom: 20px; font-size: 1.5rem;">📋 Eventos Existentes (${allEvents.length})</h3>
+                        <div id="eventsList">
+                            ${renderEventsList(allEvents)}
+                        </div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <div class="btn-group" style="margin-top: 24px;">
+                        <button class="btn btn-secondary" id="logoutBtn">
+                            🔒 CERRAR SESIÓN
+                        </button>
+                        <a href="/" class="btn btn-secondary" style="text-decoration: none;">
+                            ← VOLVER AL INICIO
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('createEventBtn').addEventListener('click', handleCreateEvent);
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                authenticatedAs = null;
+                showLogin();
+            });
+        }
+
+        function renderEventsList(events) {
+            if (events.length === 0) {
+                return '<p style="color: #64748b; text-align: center; padding: 20px;">No hay eventos creados aún</p>';
+            }
+
+            return events.map(event => {
+                const eventUrl = `${window.location.origin}?event=${encodeURIComponent(event.eventId)}`;
+                return `
+                    <div style="background: rgba(15, 23, 42, 0.5); border: 2px solid #334155; border-radius: 12px; padding: 20px; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 1.125rem; color: #e2e8f0;">${event.title || 'Sin título'}</div>
+                                <div style="color: #94a3b8; font-size: 0.875rem; margin-top: 4px;">${event.eventName || 'Sin nombre'}</div>
+                            </div>
+                            <span style="background: #334155; color: #a855f7; padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;">
+                                ${event.eventId}
+                            </span>
+                        </div>
+                        ${event.subtitle ? `<p style="color: #64748b; font-size: 0.875rem; margin-bottom: 12px;">${event.subtitle}</p>` : ''}
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-size: 0.75rem; color: #64748b;">
+                                Admin: <span style="color: #fbbf24;">${event.adminDisplayName || 'N/A'}</span>
+                                ${event.createdAt ? ` • Creado: ${new Date(event.createdAt).toLocaleDateString('es-AR')}` : ''}
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <a href="${eventUrl}" target="_blank" 
+                                   style="color: #22d3ee; font-weight: 700; font-size: 0.875rem; text-decoration: none; background: rgba(34, 211, 238, 0.1); padding: 6px 12px; border-radius: 6px;">
+                                    🔗 Abrir
+                                </a>
+                                <button class="copy-link-btn" data-url="${eventUrl}"
+                                    style="color: #10b981; font-weight: 700; font-size: 0.875rem; background: rgba(16, 185, 129, 0.1); padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer;">
+                                    📋 Copiar Link
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function handleCreateEvent() {
+            const eventId = document.getElementById('newEventId').value.trim();
+            const eventName = document.getElementById('newEventName').value.trim();
+
+            if (!eventId || !eventName) {
+                alert('El ID del evento y el nombre del evento son obligatorios');
+                return;
+            }
+
+            try {
+                const result = await createEvent({
+                    eventId,
+                    title: 'EXECUTIVE DECISION SIMULATION',
+                    subtitle: 'Diseñando el Hospital del futuro por los Líderes en Salud',
+                    eventName,
+                    adminUsername: 'leanbalbo',
+                    adminDisplayName: 'Lean'
+                });
+
+                const resultDiv = document.getElementById('createEventResult');
+                const eventUrl = `${window.location.origin}?event=${encodeURIComponent(result.eventId)}`;
+
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <div style="background: rgba(16, 185, 129, 0.2); border: 2px solid #10b981; border-radius: 8px; padding: 20px;">
+                        <p style="color: #10b981; font-weight: 700; font-size: 1.125rem; margin-bottom: 8px;">✅ Evento creado exitosamente!</p>
+                        <p style="color: #e2e8f0; font-size: 0.875rem; margin-bottom: 12px;">Comparte este link con los participantes:</p>
+                        <div style="background: #1e293b; padding: 12px; border-radius: 6px; word-break: break-all; display: flex; justify-content: space-between; align-items: center;">
+                            <a href="${eventUrl}" style="color: #22d3ee; text-decoration: none; font-weight: 600;">${eventUrl}</a>
+                        </div>
+                    </div>
+                `;
+
+                // Clear form
+                document.getElementById('newEventId').value = '';
+                document.getElementById('newEventName').value = '';
+
+                // Refresh events list
+                await showAdminPanel();
+            } catch (error) {
+                console.error('Error creating event:', error);
+            }
+        }
+
+        // Copy link handler (delegated)
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.copy-link-btn');
+            if (btn) {
+                const url = btn.dataset.url;
+                navigator.clipboard.writeText(url).then(() => {
+                    btn.textContent = '✅ Copiado!';
+                    setTimeout(() => { btn.textContent = '📋 Copiar Link'; }, 2000);
+                });
+            }
+        });
+
+        // Init
+        showLogin();
+    </script>
+</body>
+
+</html>

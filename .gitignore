@@ -1,0 +1,29 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Azure Functions
+api/local.settings.json
+api/bin/
+api/obj/
+
+# Build output
+dist/
+.build/
+
+# IDE
+.vscode/
+*.swp
+*.swo
+.idea/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
